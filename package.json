@@ -1,0 +1,28 @@
+{
+  "name": "JSON-parser",
+  "version": "0.0.1",
+  "description": "json parser as stream/promise/observable/whatever",
+  "main": "index.js",
+  "scripts": {
+    "test:cover": "nyc --silent mocha test/index.js;nyc report --reporter=html",
+    "test": "mocha -w test/index.js"
+  },
+  "keywords": [
+    "json",
+    "parser",
+    "alternative",
+    "promise"
+  ],
+  "author": "tetedacier <fabien.jacq@gmail.com> (https://tetedacier.github.io)",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.3.2",
+    "commander": "^2.19.0",
+    "underscore": "^1.9.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0"
+  }
+}

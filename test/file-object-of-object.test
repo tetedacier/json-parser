@@ -1,0 +1,15 @@
+{"ship": [
+  {
+    "captain": 1.3e4,
+    "value": "NaN",
+    "xor": [
+      {
+        "relatedId": 0.1,
+        "value": "target"
+      },
+      { "relatedId": 1, "value": "test" },
+      { "relatedId": 2, "value": "deliver" },
+      { "relatedId": 3, "value": "develop" }
+    ]
+  }
+]}
