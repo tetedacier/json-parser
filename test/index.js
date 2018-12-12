@@ -1,15 +1,20 @@
 require('colors')
 var {assert, expect} = require('chai')
 const fs = require('fs')
-const { 
-    JSONToken,
-    JSONGrammar,
-    checkString,
- } = require('../src/JSON')
 const {
-    checkObject,
-    checkArray,
-} = require('../src/lib')
+    TOKEN,
+} = require('../src/lib/token')
+    const {
+    GRAMMAR,
+ } = require('../src/lib/grammar')
+ const {
+   reviveString,
+   reviveNumber,
+   reviveBoolean,
+   reviveNull,
+   reviveObject,
+   reviveArray,
+ } = require('../src/lib/revive')
 const {
     keys
 } = require('underscore')
@@ -37,7 +42,7 @@ const log = (expectation) => `with given expectation : \n${
             } ${
                 stringReviver[i][1].bgWhite.black
             }`, function () {
-                assert.equal(checkString([, stringReviver[i][0]]), stringReviver[i][1]);
+                assert.equal(reviveString([, stringReviver[i][0]]), stringReviver[i][1]);
             })
         })
     })
@@ -52,8 +57,8 @@ const log = (expectation) => `with given expectation : \n${
     describe('should match the following string representation and preserve escape sequences', function () {
         samples.forEach((sample, iteration) => {
             it(`${'"'.blue}${sample.bold.green}${'"'.blue}`, function () {
-                let match = sample.match(JSONToken.STRING_PATTERN_VALUE)
-                assert.equal(checkString(match), expectation[iteration]);
+                let match = sample.match(TOKEN.STRING_PATTERN_VALUE)
+                assert.equal(reviveString(match), expectation[iteration]);
             })
         })
     })
@@ -69,7 +74,7 @@ const log = (expectation) => `with given expectation : \n${
     describe('should match the following string representation of number', function () {
         samples.forEach((sample, iteration) => {
             it(`${'"'.blue}${sample.bold.green}${'"'.blue}`, function () {
-                let match = sample.match(JSONToken.NUMBER_PATTERN_VALUE)
+                let match = sample.match(TOKEN.NUMBER_PATTERN_VALUE)
                 assert.equal(+match[1], expectation[iteration]);
             })
         })
@@ -82,14 +87,18 @@ const log = (expectation) => `with given expectation : \n${
     var expectation = JSON.parse(sample)
     describe(log(expectation), () => {
         it('should parse the same array as JSON.parse without reviver',()=>{
-            let arrayStart = sample.match(JSONGrammar.ARRAY[0])
-            if (arrayStart) {
-                let extractedArray = checkArray(
-                    sample.substr(arrayStart[0].length)
-                )
-                return assert.equal(JSON.stringify(extractedArray.value), JSON.stringify(expectation));
-            } else {
-                done(`no array start in "${sample}"`)
+            try {
+                let arrayStart = sample.match(GRAMMAR.ARRAY[0])
+                if (arrayStart) {
+                    let extractedArray = reviveArray(
+                        sample.substr(arrayStart[0].length)
+                    )
+                    return assert.equal(JSON.stringify(extractedArray.value), JSON.stringify(expectation));
+                } else {
+                    done(`no array start in "${sample}"`)
+                }
+            } catch(error) {
+              console.warn(error)
             }
         })
     })
@@ -104,10 +113,10 @@ const log = (expectation) => `with given expectation : \n${
     var expectation = JSON.parse(sample)
 
     it('should failed if neither property declarator or terminator is found', () => {
-        let objectStart = unterminatedError.match(JSONGrammar.OBJECT[0])
+        let objectStart = unterminatedError.match(GRAMMAR.OBJECT[0])
         if (objectStart) {
             assert.throws(
-                () => checkObject(unterminatedError.substr(objectStart[0].length)),
+                () => reviveObject(unterminatedError.substr(objectStart[0].length)),
                 SyntaxError,
                 /neither key nor object terminator found/
             )
@@ -116,10 +125,10 @@ const log = (expectation) => `with given expectation : \n${
         }
     })
     it('should failed if no terminator is found', () => {
-        let objectStart = separatorError.match(JSONGrammar.OBJECT[0])
+        let objectStart = separatorError.match(GRAMMAR.OBJECT[0])
         if (objectStart) {
             assert.throws(
-                () => checkObject(separatorError.substr(objectStart[0].length)),
+                () => reviveObject(separatorError.substr(objectStart[0].length)),
                 SyntaxError,
                 /Every object value is either followed by comma or a object termination token/
             )
@@ -128,10 +137,10 @@ const log = (expectation) => `with given expectation : \n${
         }
     })
     it('should failed if no field assignment is found', () => {
-        let objectStart = fieldError.match(JSONGrammar.OBJECT[0])
+        let objectStart = fieldError.match(GRAMMAR.OBJECT[0])
         if (objectStart) {
             assert.throws(
-                () => checkObject(fieldError.substr(objectStart[0].length)),
+                () => reviveObject(fieldError.substr(objectStart[0].length)),
                 SyntaxError,
                 /missing field separator/
             )
@@ -141,11 +150,12 @@ const log = (expectation) => `with given expectation : \n${
     })
     describe(log(expectation), () => {
         it('should parse the same object as JSON.parse without reviver', () => {
-            let objectStart = sample.match(JSONGrammar.OBJECT[0])
+            let objectStart = sample.match(GRAMMAR.OBJECT[0])
             if (objectStart) {
-                let object = checkObject(
+                let object = reviveObject(
                     sample.substr(objectStart[0].length)
                 )
+
                 return assert.equal(JSON.stringify(object.value), JSON.stringify(expectation));
             } else {
                 done(`no object start in "${sample}"`)
@@ -159,9 +169,9 @@ const log = (expectation) => `with given expectation : \n${
     var expectation = JSON.parse(sample)
     describe(log(expectation), () => {
         it('should parse the same object as JSON.parse without reviver', () => {
-            let arrayStart = sample.match(JSONGrammar.OBJECT[0])
+            let arrayStart = sample.match(GRAMMAR.OBJECT[0])
             if (arrayStart) {
-                let object = checkObject(
+                let object = reviveObject(
                     sample.substr(arrayStart[0].length)
                 )
 
@@ -178,9 +188,9 @@ const log = (expectation) => `with given expectation : \n${
     var expectation = JSON.parse(sample)
     describe(log(expectation), () => {
         it('should parse the same object as JSON.parse without reviver', () => {
-            let objectStart = sample.match(JSONGrammar.OBJECT[0])
+            let objectStart = sample.match(GRAMMAR.OBJECT[0])
             if (objectStart) {
-                let object = checkObject(
+                let object = reviveObject(
                     sample.substr(objectStart[0].length)
                 )
 
@@ -197,9 +207,9 @@ const log = (expectation) => `with given expectation : \n${
     var expectation = JSON.parse(sample)
     describe(log(expectation), () => {
         it('should parse the same array as JSON.parse without reviver', () => {
-            let arrayStart = sample.match(JSONGrammar.ARRAY[0])
+            let arrayStart = sample.match(GRAMMAR.ARRAY[0])
             if (arrayStart) {
-                let array = checkArray(
+                let array = reviveArray(
                     sample.substr(arrayStart[0].length)
                 )
 
