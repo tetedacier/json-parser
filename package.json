@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test:cover": "nyc --silent mocha test/index.js;nyc report --reporter=html",
-    "test": "mocha -w test/index.js"
+    "test": "mocha -w test/index.js",
+    "doc": "jsdoc -c .doc/conf.json"
   },
   "keywords": [
     "json",
@@ -22,6 +23,8 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "jsdoc": "^3.5.5",
+    "madge": "^3.3.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0"
   }

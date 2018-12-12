@@ -25,8 +25,8 @@ const reviver = {
   reviveBoolean,
   reviveNumber,
   reviveString,
-  reviveArray: reviveArray(TOKEN, guess),
-  reviveObject: reviveObject(TOKEN, guess, logError),
+  reviveArray: reviveArray(TOKEN, guess, logError, GRAMMAR),
+  reviveObject: reviveObject(TOKEN, guess, logError, GRAMMAR),
 }
 
 

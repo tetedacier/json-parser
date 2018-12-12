@@ -6,6 +6,15 @@ const {
   reviveNull,
 } = require('./revive/index')
 const { TOKEN } = require('./token')
+
+const TOKEN_REGISTRY = Object.freeze(Object.keys(TOKEN).reduce((acc, current) => {
+    if (current) {
+        acc[current] = current;
+    }
+    return acc
+}, {}));
+
+
 const GRAMMAR = {
     DOCUMENT:[
         "ARRAY",
@@ -42,7 +51,8 @@ const GRAMMAR = {
     ARRAY: [
         TOKEN.OPEN_ARRAY,
         TOKEN.CLOSE_ARRAY
-    ]
+    ],
+    TOKEN: TOKEN_REGISTRY,
 }
 
 module.exports = {

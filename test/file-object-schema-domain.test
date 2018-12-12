@@ -1,0 +1,11 @@
+{
+    "scenarii": [
+        {
+            "given": "input",
+            "action": "grep",
+            "expectation": "$? equals to 0"
+        }
+    ],
+    "entity": "shell,grep,stdin,exit",
+    "repository": "self"
+}

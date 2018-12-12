@@ -11,22 +11,23 @@ module.exports = function (GRAMMAR, TOKEN, compoundReviver, logError) {
     let done = false
     let types = Object.keys(GRAMMAR.TYPE)
     for (let i = 0, l = types.length; i < l; i++) {
-      let match = copy.match(GRAMMAR.TYPE[types[i]].pattern)
+      let type = types[i];
+      let match = copy.match(GRAMMAR.TYPE[type].pattern)
       if (match) {
         copy = copy.substr(match[0].length)
-        if (['ARRAY', 'OBJECT'].indexOf(types[i]) !== -1) {
+        if (GRAMMAR.DOCUMENT.includes(type)) {
           const {
             value,
             remaining
-          } = compoundReviver(types[i])(copy)
+          } = compoundReviver(type)(copy)
 
           copy = remaining
           revive(value)
         } else {
-          revive(GRAMMAR.TYPE[types[i]].value(match))
+          revive(GRAMMAR.TYPE[type].value(match))
         }
 
-        let terminaison = ['ITEM_SEPARATOR', terminator].map(rule => Object.assign({
+        let terminaison = [GRAMMAR.TOKEN.ITEM_SEPARATOR, terminator].map(rule => Object.assign({
           key: rule,
           match: copy.match(TOKEN[rule])
         })).filter(capture => !!capture.match)

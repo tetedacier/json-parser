@@ -2,10 +2,8 @@ require('colors')
 var {assert, expect} = require('chai')
 const fs = require('fs')
 const {
-    TOKEN,
-} = require('../src/lib/token')
-    const {
     GRAMMAR,
+    TOKEN,
  } = require('../src/lib/grammar')
  const {
    reviveString,
@@ -18,7 +16,10 @@ const {
 const {
     keys
 } = require('underscore')
-
+const {
+    ontology,
+    //
+} = require('../src/lib/ontology');
 const log = (expectation) => `with given expectation : \n${
     '  '.repeat(3)
 }${
@@ -104,6 +105,24 @@ const log = (expectation) => `with given expectation : \n${
     })
 })
 
+; describe('array of object validator'.cyan, function () {
+    var sample = fs.readFileSync('./test/file-array-of-object.test').toString()
+    var expectation = JSON.parse(sample)
+    describe(log(expectation), () => {
+        it('should parse the same array as JSON.parse without reviver', () => {
+            let arrayStart = sample.match(GRAMMAR.ARRAY[0])
+            if (arrayStart) {
+                let array = reviveArray(
+                    sample.substr(arrayStart[0].length)
+                )
+
+                return assert.equal(JSON.stringify(array.value), JSON.stringify(expectation));
+            } else {
+                throw(`no array start in "${sample}"`)
+            }
+        })
+    })
+})
 
 ; describe('object validator'.cyan, function () {
     var sample = fs.readFileSync('./test/file-object.test').toString()
@@ -202,21 +221,28 @@ const log = (expectation) => `with given expectation : \n${
     })
 })
 
-; describe('array of object validator'.cyan, function () {
-    var sample = fs.readFileSync('./test/file-array-of-object.test').toString()
-    var expectation = JSON.parse(sample)
-    describe(log(expectation), () => {
-        it('should parse the same array as JSON.parse without reviver', () => {
-            let arrayStart = sample.match(GRAMMAR.ARRAY[0])
-            if (arrayStart) {
-                let array = reviveArray(
-                    sample.substr(arrayStart[0].length)
-                )
+; describe.only('object with simple schema validator'.cyan, function () {
+    [
+        'test',
+        'domain'
+    ].forEach(validator => {
+        const sample = fs.readFileSync(`./test/file-object-schema-${validator}.test`).toString()
+        const test = ontology.types[validator];
+        const expectation = JSON.parse(sample)
+        describe(('#type schema'.green + ('"' + validator + '"').blue + '\n')+log(expectation), () => {
+            it('should parse the same object as JSON.parse without reviver', () => {
+                let objectStart = sample.match(GRAMMAR.OBJECT[0])
+                if (objectStart) {
+                    let object = reviveObject(
+                        sample.substr(objectStart[0].length),
+                        ontology,
+                    )
 
-                return assert.equal(JSON.stringify(array.value), JSON.stringify(expectation));
-            } else {
-                throw(`no array start in "${sample}"`)
-            }
+                    return assert.equal(JSON.stringify(object.value), JSON.stringify(expectation));
+                } else {
+                    done(`no object start in "${sample}"`)
+                }
+            })
         })
     })
 })

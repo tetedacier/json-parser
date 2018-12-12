@@ -77,4 +77,6 @@ const TOKEN = {
         WHITE_SPACE
     }`),
 }
-module.exports = { TOKEN }
+module.exports = {
+    TOKEN,
+}

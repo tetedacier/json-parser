@@ -1,0 +1,5 @@
+{
+    "given": "input",
+    "action": "grep",
+    "expectation": "$? equals to 0"
+}
